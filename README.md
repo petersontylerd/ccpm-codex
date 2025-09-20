@@ -1,490 +1,202 @@
-# Claude Code PM
+# ccpm-codex
 
-[![Automaze](https://img.shields.io/badge/By-automaze.io-4b3baf)](https://automaze.io)
-&nbsp;
-[![Claude Code](https://img.shields.io/badge/+-Claude%20Code-d97757)](https://github.com/automazeio/ccpm/blob/main/README.md)
-[![GitHub Issues](https://img.shields.io/badge/+-GitHub%20Issues-1f2328)](https://github.com/automazeio/ccpm)
-&nbsp;
-[![MIT License](https://img.shields.io/badge/License-MIT-28a745)](https://github.com/automazeio/ccpm/blob/main/LICENSE)
-&nbsp;
-[![Follow on 𝕏](https://img.shields.io/badge/𝕏-@aroussi-1c9bf0)](http://x.com/intent/follow?screen_name=aroussi)
-&nbsp;
-[![Star this repo](https://img.shields.io/badge/★-Star%20this%20repo-e7b10b)](https://github.com/automazeio/ccpm)
+Spec-driven product management for Codex CLI. This fork evolves the original Claude Code PM workflow so Codex agents can plan, decompose, and ship features with full traceability while staying anchored to GitHub Issues.
 
-### Claude Code workflow to ship ~~faster~~ _better_ using spec-driven development, GitHub issues, Git worktrees, and mutiple AI agents running in parallel.
+- Structured product plan artifacts live under `.codex/product-plan/` with a 1:1 mapping of prompts to shell scripts.
+- `gh` and the `gh-sub-issue` extension are first-class dependencies; every GitHub command checks for them before running.
+- Real timestamps follow Central Time (America/Chicago) via the shared helpers in `.codex/scripts/lib/`.
+- Test-driven development is enforced through rules, prompts, and the Codex test runner.
 
-Stop losing context. Stop blocking on tasks. Stop shipping bugs. This battle-tested system turns PRDs into epics, epics into GitHub issues, and issues into production code – with full traceability at every step.
+![Codex PM flow](screenshot.webp)
 
-![Claude Code PM](screenshot.webp)
-
-## Table of Contents
-
-- [Background](#background)
-- [The Workflow](#the-workflow)
-- [What Makes This Different?](#what-makes-this-different)
-- [Why GitHub Issues?](#why-github-issues)
-- [Core Principle: No Vibe Coding](#core-principle-no-vibe-coding)
-- [System Architecture](#system-architecture)
-- [Workflow Phases](#workflow-phases)
-- [Command Reference](#command-reference)
-- [The Parallel Execution System](#the-parallel-execution-system)
-- [Key Features & Benefits](#key-features--benefits)
-- [Proven Results](#proven-results)
-- [Example Flow](#example-flow)
-- [Get Started Now](#get-started-now)
-- [Local vs Remote](#local-vs-remote)
-- [Technical Notes](#technical-notes)
-- [Support This Project](#support-this-project)
-
-## Background
-
-Every team struggles with the same problems:
-- **Context evaporates** between sessions, forcing constant re-discovery
-- **Parallel work creates conflicts** when multiple developers touch the same code
-- **Requirements drift** as verbal decisions override written specs
-- **Progress becomes invisible** until the very end
-
-This system solves all of that.
-
-## The Workflow
-
-```mermaid
-graph LR
-    A[PRD Creation] --> B[Epic Planning]
-    B --> C[Task Decomposition]
-    C --> D[GitHub Sync]
-    D --> E[Parallel Execution]
-```
-
-### See It In Action (60 seconds)
+## Quick Start
 
 ```bash
-# Create a comprehensive PRD through guided brainstorming
-/pm:prd-new memory-system
+# 1. Materialize the product plan from the template
+/plan:init
 
-# Transform PRD into a technical epic with task breakdown
-/pm:prd-parse memory-system
+# 2. Get a summary of the current plan state
+/plan:status
 
-# Push to GitHub and start parallel execution
-/pm:epic-oneshot memory-system
-/pm:issue-start 1235
+# 2b. Update PRD metadata and goals as the plan evolves
+/plan:prd-update --product-name "Codex PM" --project-code CPM-001 --summary "Spec-driven workflow for Codex CLI"
+
+# 2c. Refresh personas and strategy from curated payloads
+/plan:personas-update --input payloads/personas.yaml --note "Workshop sync"
+/plan:strategy-update --input payloads/strategy.yaml
+/plan:roadmap-update --input payloads/roadmap.yaml
+
+# 3. Prime context for a new coding session
+/context:prime
+
+# 4. Inspect operational health and data-quality flags
+/ops:status
+
+# 5. Create new work items
+/epic:new --name "Workflow Automation"
+/feature:new --epic E004 --name "Agent Scheduler"
+/story:new --epic E004 --feature F001 --name "Schedule parallel agents" --as "Project manager" --i-want "to assign agent workloads" --so-that "parallel tracks stay balanced"
+
+# 6. Update acceptance criteria and metadata as work evolves
+/story:update --epic E004 --feature F001 --story US0001 --acceptance "AC01|Agents assigned evenly|Scheduler distributes tasks|All agents get balanced workloads"
+
+# 7. Run targeted tests while logging output
+/testing:run -- pytest tests/unit --maxfail=1
+
+# 8. Preview GitHub sync before creating issues
+/ops:github-sync --preview
+
+# 9. Kick off an issue locally
+/ops:issue-start --issue 12345 --preview
+
+# 10. Sync and close the issue when ready
+/ops:issue-sync --issue 12345 --note "Ready for review" --preview
+/ops:issue-close --issue 12345 --preview
+
+# 11. Pull the latest GitHub metadata into the plan
+/ops:github-pull --issue 12345 --preview --local-only
+
+# 12. Review any offline sync queue entries (created when `--local-only` skips issue creation)
+sed -n '1,5p' .codex/product-plan/offline-sync-queue.log
 ```
 
-## What Makes This Different?
+> **Tip:** `/ops:github-sync` runs in preview mode by default. Use `--diff` to compare local vs remote status, add/remove labels with the corresponding flags, and pass `--apply` when you're ready to create/update issues. Stick with preview (optionally `--local-only`) while testing offline.
 
-| Traditional Development | Claude Code PM System |
-|------------------------|----------------------|
-| Context lost between sessions | **Persistent context** across all work |
-| Serial task execution | **Parallel agents** on independent tasks |
-| "Vibe coding" from memory | **Spec-driven** with full traceability |
-| Progress hidden in branches | **Transparent audit trail** in GitHub |
-| Manual task coordination | **Intelligent prioritization** with `/pm:next` |
-
-## Why GitHub Issues?
-
-Most Claude Code workflows operate in isolation – a single developer working with AI in their local environment. This creates a fundamental problem: **AI-assisted development becomes a silo**.
-
-By using GitHub Issues as our database, we unlock something powerful:
-
-### 🤝 **True Team Collaboration**
-- Multiple Claude instances can work on the same project simultaneously
-- Human developers see AI progress in real-time through issue comments
-- Team members can jump in anywhere – the context is always visible
-- Managers get transparency without interrupting flow
-
-### 🔄 **Seamless Human-AI Handoffs**
-- AI can start a task, human can finish it (or vice versa)
-- Progress updates are visible to everyone, not trapped in chat logs
-- Code reviews happen naturally through PR comments
-- No "what did the AI do?" meetings
-
-### 📈 **Scalable Beyond Solo Work**
-- Add team members without onboarding friction
-- Multiple AI agents working in parallel on different issues
-- Distributed teams stay synchronized automatically
-- Works with existing GitHub workflows and tools
-
-### 🎯 **Single Source of Truth**
-- No separate databases or project management tools
-- Issue state is the project state
-- Comments are the audit trail
-- Labels provide organization
-
-This isn't just a project management system – it's a **collaboration protocol** that lets humans and AI agents work together at scale, using infrastructure your team already trusts.
-
-## Core Principle: No Vibe Coding
-
-> **Every line of code must trace back to a specification.**
-
-We follow a strict 5-phase discipline:
-
-1. **🧠 Brainstorm** - Think deeper than comfortable
-2. **📝 Document** - Write specs that leave nothing to interpretation
-3. **📐 Plan** - Architect with explicit technical decisions
-4. **⚡ Execute** - Build exactly what was specified
-5. **📊 Track** - Maintain transparent progress at every step
-
-No shortcuts. No assumptions. No regrets.
-
-## System Architecture
+## Directory Layout
 
 ```
-.claude/
-├── CLAUDE.md          # Always-on instructions (copy content to your project's CLAUDE.md file)
-├── agents/            # Task-oriented agents (for context preservation)
-├── commands/          # Command definitions
-│   ├── context/       # Create, update, and prime context
-│   ├── pm/            # ← Project management commands (this system)
-│   └── testing/       # Prime and execute tests (edit this)
-├── context/           # Project-wide context files
-├── epics/             # ← PM's local workspace (place in .gitignore)
-│   └── [epic-name]/   # Epic and related tasks
-│       ├── epic.md    # Implementation plan
-│       ├── [#].md     # Individual task files
-│       └── updates/   # Work-in-progress updates
-├── prds/              # ← PM's PRD files
-├── rules/             # Place any rule files you'd like to reference here
-└── scripts/           # Place any script files you'd like to use here
+.codex/
+├── prompts/                 # Each prompt mirrors a shell script (plan/, epic/, feature/, story/, context/, ops/, testing/)
+├── scripts/
+│   ├── lib/                 # Shared helpers (logging, timestamps, gh checks)
+│   ├── plan/                # plan:init, plan:status
+│   ├── epic/                # epic:new, epic:update
+│   ├── feature/             # feature:new, feature:update
+│   ├── story/               # story:new, story:update
+│   ├── context/             # context:prime
+│   ├── ops/                 # ops:status (GitHub sync coming next)
+│   └── testing/             # testing:run (TDD helper suite)
+├── product-plan/            # Active plan state (generated via plan:init)
+│   ├── foundation/          # PRD, personas, strategy, roadmap, etc.
+│   └── epics/               # Epics → features → user stories + updates/
+├── product-plan.template/   # Canonical template copied into product-plan/
+└── rules/                   # datetime.md, tdd.md, and future Codex rules
 ```
 
-## Workflow Phases
-
-### 1. Product Planning Phase
+Every `.md` prompt calls its paired `.sh` script so Codex conversations and command-line usage stay aligned. Scripts source `.codex/scripts/lib/init.sh` to pick up logging, timestamp, and GitHub helpers.
 
-```bash
-/pm:prd-new feature-name
-```
-Launches comprehensive brainstorming to create a Product Requirements Document capturing vision, user stories, success criteria, and constraints.
+## Product Plan Model
 
-**Output:** `.claude/prds/feature-name.md`
+The plan is decomposed into three layers:
 
-### 2. Implementation Planning Phase
+1. **Epics** (`.codex/product-plan/epics/epic-E###/epic-E###.yaml`)
+   - Metadata (name, priority, facilitator)
+   - Overview (description, personas, linked strategy IDs)
+   - Dependencies and success criteria
+2. **Features** (`.../feature-E###-F###/feature-E###-F###.yaml`)
+   - Overview (description, user value, scope)
+   - Dependencies and success criteria
+3. **User Stories** (`.../user-story-E###-F###-US####.yaml`)
+   - Story framing (`as_a`, `i_want`, `so_that`)
+   - Acceptance criteria in Gherkin structure
 
-```bash
-/pm:prd-parse feature-name
-```
-Transforms PRD into a technical implementation plan with architectural decisions, technical approach, and dependency mapping.
+When you run `epic:new`, `feature:new`, or `story:new`, the commands copy the canonical template, stamp real timestamps, and log the change in `plan-meta.yaml` and `revisions.log`. Update commands (e.g., `story:update`) edit existing YAML fields and rewrite acceptance criteria blocks to eliminate the “placeholder” values delivered by the template.
 
-**Output:** `.claude/epics/feature-name/epic.md`
+Use `/plan:prd-update` to keep the foundation PRD aligned with the latest planning decisions—metadata, summary, and goal lists are all managed from that script with automatic revision logging.
 
-### 3. Task Decomposition Phase
+Use `/plan:personas-update`, `/plan:strategy-update`, and `/plan:roadmap-update` to merge persona, strategy, and roadmap payloads into the plan. They support targeted replacements, removals by id, and journal every change so downstream automation stays in sync.
+See `docs/foundation-updates.md` for payload patterns, command examples, and collaboration guardrails across the PRD, personas, strategy, and roadmap artifacts.
 
-```bash
-/pm:epic-decompose feature-name
-```
-Breaks epic into concrete, actionable tasks with acceptance criteria, effort estimates, and parallelization flags.
+## Operational Status & Data Quality
 
-**Output:** `.claude/epics/feature-name/[task].md`
+Use `/ops:status` to surface progress indicators before you drop into code:
 
-### 4. GitHub Synchronization
+- Totals for epics, features, and user stories.
+- Flags for missing epic names, blank feature descriptions, or stories without acceptance criteria.
+- Latest revision entries so you can trace who changed what and when.
 
-```bash
-/pm:epic-sync feature-name
-# Or for confident workflows:
-/pm:epic-oneshot feature-name
-```
-Pushes epic and tasks to GitHub as issues with appropriate labels and relationships.
+Behind the scenes, `ops/status.sh` parses the YAML structures and relies on the same timestamp helpers and revision log used by creation/update commands.
 
-### 5. Execution Phase
+## Context Priming
 
-```bash
-/pm:issue-start 1234  # Launch specialized agent
-/pm:issue-sync 1234   # Push progress updates
-/pm:next             # Get next priority task
-```
-Specialized agents implement tasks while maintaining progress updates and an audit trail.
+`/context:prime` reads the product plan, revision log, and status summaries to produce a concise brief for Codex sessions. This replaces the legacy Claude prompts that generated `product-context.md`, `product-brief.md`, or `product-vision.md`; the authoritative context now lives in `.codex/product-plan/`.
 
-## Command Reference
+## Testing & TDD
 
-> [!TIP]
-> Type `/pm:help` for a concise command summary
+TDD is enforced via `.codex/rules/tdd.md` and the testing helper suite:
 
-### Initial Setup
-- `/pm:init` - Install dependencies and configure GitHub
+- `/testing:red` runs a targeted command expecting failure, confirming the red phase and journaling the result in `tests/logs/tdd-history.log`.
+- `/testing:run` executes tests on demand, storing logs under `tests/logs/` with Central Time stamps (use `--no-log` to skip file output).
+- `/testing:refactor` re-runs the suite expecting success, ensuring green/refactor phases are logged alongside any notes.
 
-### PRD Commands
-- `/pm:prd-new` - Launch brainstorming for new product requirement
-- `/pm:prd-parse` - Convert PRD to implementation epic
-- `/pm:prd-list` - List all PRDs
-- `/pm:prd-edit` - Edit existing PRD
-- `/pm:prd-status` - Show PRD implementation status
+### Smoke Tests
 
-### Epic Commands
-- `/pm:epic-decompose` - Break epic into task files
-- `/pm:epic-sync` - Push epic and tasks to GitHub
-- `/pm:epic-oneshot` - Decompose and sync in one command
-- `/pm:epic-list` - List all epics
-- `/pm:epic-show` - Display epic and its tasks
-- `/pm:epic-close` - Mark epic as complete
-- `/pm:epic-edit` - Edit epic details
-- `/pm:epic-refresh` - Update epic progress from tasks
+Run these scripts to exercise the workflow end-to-end:
 
-### Issue Commands
-- `/pm:issue-show` - Display issue and sub-issues
-- `/pm:issue-status` - Check issue status
-- `/pm:issue-start` - Begin work with specialized agent
-- `/pm:issue-sync` - Push updates to GitHub
-- `/pm:issue-close` - Mark issue as complete
-- `/pm:issue-reopen` - Reopen closed issue
-- `/pm:issue-edit` - Edit issue details
+- `tests/smoke/github_workflow.sh` — plan status, diff preview, and offline queue inspection without touching GitHub (uses `--local-only`).
+- `tests/smoke/tdd_helpers.sh` — sanity-check the red/green helpers with trivial commands.
+- `tests/smoke/foundation_updates.sh` — exercises PRD, personas, strategy, and roadmap update commands against a temporary copy of the plan.
 
-### Workflow Commands
-- `/pm:next` - Show next priority issue with epic context
-- `/pm:status` - Overall project dashboard
-- `/pm:standup` - Daily standup report
-- `/pm:blocked` - Show blocked tasks
-- `/pm:in-progress` - List work in progress
+### Unit Tests
 
-### Sync Commands
-- `/pm:sync` - Full bidirectional sync with GitHub
-- `/pm:import` - Import existing GitHub issues
+- `tests/unit/foundation_test.sh` — runs targeted assertions against the PRD, personas, strategy, and roadmap merge scripts using temporary backups. Requires `PyYAML` (install with `pip install pyyaml`).
+- `tests/unit/github_ops_test.sh` — verifies `/ops:github-sync` preview output and offline queue JSON export without hitting GitHub.
 
-### Maintenance Commands
-- `/pm:validate` - Check system integrity
-- `/pm:clean` - Archive completed work
-- `/pm:search` - Search across all content
+## GitHub Integration
 
-## The Parallel Execution System
+Codex now includes an initial GitHub workflow:
 
-### Issues Aren't Atomic
+- `ops/github-sync` inspects the plan hierarchy and, by default, previews the GitHub issue tree. Pass `--apply` to create/update issues and sub-issues (requires `gh` + `gh-sub-issue`). Metadata is written back to each YAML artifact so `github.issue`, `last_synced`, and `last_status` stay current. Use `--diff` (now prefetches remote metadata for efficiency) to compare local status with the remote issue, and the label flags (`--add-label`, `--remove-label`). `--local-only` keeps changes to plan metadata only (new issues are skipped and recorded in `.codex/product-plan/offline-sync-queue.log`). Every run ends with diff + plan summaries so you can see create/update/blocked counts at a glance. Use `--select path` to scope the run to specific artifact keys (TYPE:EID:FID:SID) and `--report path` to emit a JSON summary for downstream automation (see `docs/github-reporting.md`).
+- `ops/github-pull` refreshes local metadata from existing GitHub issues and appends structured log entries (`--local-only` keeps the operation offline).
+- Manage the offline queue: `/ops:offline-queue --list` (view/export with `--export path`), `--replay` (with optional `--epic`, `--type`, `--force`, `--prune`, `--report path`), `--clear` (purge entries).
+- `ops/issue-start` stamps a Central Time timestamp, writes to the local update log, updates the `github` block, and (optionally) assigns the issue with `gh issue edit`.
+- `ops/issue-sync` appends progress notes, updates timestamps, and can post GitHub comments.
+- `ops/issue-close` marks work as done, closes the issue (unless `--local-only`), and records the closure in the product plan.
 
-Traditional thinking: One issue = One developer = One task
+Up next: richer sync options for `/ops/github-sync` (dry-run diffs across the whole plan, label management) and automation around multi-issue batching.
 
-**Reality: One issue = Multiple parallel work streams**
+## Migration Status
 
-A single "Implement user authentication" issue isn't one task. It's...
+| Area | Legacy Claude PM (archived) | Codex Status |
+| --- | --- | --- |
+| Product plan creation | PRD prompts under Claude PM package | Replaced by `plan:init`, `plan:status`, and YAML hierarchy under `.codex/product-plan/` |
+| Context priming | Claude context primers generated markdown briefs | Replaced by `context:prime` reading plan artifacts |
+| TDD guidance | Minimal guardrails | `.codex/rules/tdd.md` + `testing:*` helpers |
+| GitHub sync | `/pm:epic-sync`, `/pm:issue-start` coordination | `ops/github-sync` (preview/diff/select/report), `ops/github-pull`, and `ops/issue-*` lifecycle commands implemented |
+| Directory structure | Legacy Claude tree (removed) | `.codex/*` with 1:1 prompts/scripts |
 
-- **Agent 1**: Database tables and migrations
-- **Agent 2**: Service layer and business logic
-- **Agent 3**: API endpoints and middleware
-- **Agent 4**: UI components and forms
-- **Agent 5**: Test suites and documentation
+The legacy Claude assets are removed from this repository; the migration history lives in `docs/codex-migration.md`, and the removal steps are captured in `docs/claude-removal-checklist.md`.
 
-All running **simultaneously** in the same worktree.
+## Requirements
 
-### The Math of Velocity
+- Bash-compatible shell (Codex CLI default)
+- `git`
+- `gh` (GitHub CLI)
+- `gh-sub-issue` extension (`gh extension install yahsan2/gh-sub-issue`)
+- Python 3 (for YAML helpers) plus `PyYAML` (`pip install pyyaml`)
 
-**Traditional Approach:**
-- Epic with 3 issues
-- Sequential execution
+If any dependency is missing, the scripts surface actionable guidance and exit non-zero rather than attempting partial work.
 
-**This System:**
-- Same epic with 3 issues
-- Each issue splits into ~4 parallel streams
-- **12 agents working simultaneously**
+## Contributing
 
-We're not assigning agents to issues. We're **leveraging multiple agents** to ship faster.
+1. Use `/context:prime` before starting new work to ground Codex in the current state.
+2. Follow the TDD loop; capture logs with `/testing:run` and store them under `tests/logs/`.
+3. Update the product plan via the provided `new`/`update` commands so data quality remains high.
+4. Run `/ops:status` and `/plan:status` before syncing with GitHub to identify missing fields.
+5. Document notable changes in `docs/codex-migration.md` as we phase out `.claude/`.
 
-### Context Optimization
+## Removing the Legacy Claude Tree
 
-**Traditional single-thread approach:**
-- Main conversation carries ALL the implementation details
-- Context window fills with database schemas, API code, UI components
-- Eventually hits context limits and loses coherence
+We kept the original Claude assets checked in for historical reference until the migration checklist in `docs/claude-removal-checklist.md` was complete. With parity reached, follow this workflow whenever you prune a downstream fork:
 
-**Parallel agent approach:**
-- Main thread stays clean and strategic
-- Each agent handles its own context in isolation
-- Implementation details never pollute the main conversation
-- Main thread maintains oversight without drowning in code
+1. Confirm a search for `dot-claude` references only returns archival docs (no active prompts/scripts).
+2. Take note of outstanding Claude artifacts to archive elsewhere if desired.
+3. Delete the entire legacy Claude directory and update `.gitignore`, README, and any onboarding docs.
+4. Run the full test suite (`tests/unit/*.sh`, `tests/smoke/*.sh`) to validate the removal.
+5. Record the change in `docs/codex-migration.md` and reference it in the commit message.
 
-Your main conversation becomes the conductor, not the orchestra.
-
-### GitHub vs Local: Perfect Separation
-
-**What GitHub Sees:**
-- Clean, simple issues
-- Progress updates
-- Completion status
-
-**What Actually Happens Locally:**
-- Issue #1234 explodes into 5 parallel agents
-- Agents coordinate through Git commits
-- Complex orchestration hidden from view
-
-GitHub doesn't need to know HOW the work got done – just that it IS done.
-
-### The Command Flow
-
-```bash
-# Analyze what can be parallelized
-/pm:issue-analyze 1234
-
-# Launch the swarm
-/pm:epic-start memory-system
-
-# Watch the magic
-# 12 agents working across 3 issues
-# All in: ../epic-memory-system/
-
-# One clean merge when done
-/pm:epic-merge memory-system
-```
-
-## Key Features & Benefits
-
-### 🧠 **Context Preservation**
-Never lose project state again. Each epic maintains its own context, agents read from `.claude/context/`, and updates locally before syncing.
-
-### ⚡ **Parallel Execution**
-Ship faster with multiple agents working simultaneously. Tasks marked `parallel: true` enable conflict-free concurrent development.
-
-### 🔗 **GitHub Native**
-Works with tools your team already uses. Issues are the source of truth, comments provide history, and there is no dependency on the Projects API.
-
-### 🤖 **Agent Specialization**
-Right tool for every job. Different agents for UI, API, and database work. Each reads requirements and posts updates automatically.
-
-### 📊 **Full Traceability**
-Every decision is documented. PRD → Epic → Task → Issue → Code → Commit. Complete audit trail from idea to production.
-
-### 🚀 **Developer Productivity**
-Focus on building, not managing. Intelligent prioritization, automatic context loading, and incremental sync when ready.
-
-## Proven Results
-
-Teams using this system report:
-- **89% less time** lost to context switching – you'll use `/compact` and `/clear` a LOT less
-- **5-8 parallel tasks** vs 1 previously – editing/testing multiple files at the same time
-- **75% reduction** in bug rates – due to the breaking down features into detailed tasks
-- **Up to 3x faster** feature delivery – based on feature size and complexity
-
-## Example Flow
-
-```bash
-# Start a new feature
-/pm:prd-new memory-system
-
-# Review and refine the PRD...
-
-# Create implementation plan
-/pm:prd-parse memory-system
-
-# Review the epic...
-
-# Break into tasks and push to GitHub
-/pm:epic-oneshot memory-system
-# Creates issues: #1234 (epic), #1235, #1236 (tasks)
-
-# Start development on a task
-/pm:issue-start 1235
-# Agent begins work, maintains local progress
-
-# Sync progress to GitHub
-/pm:issue-sync 1235
-# Updates posted as issue comments
-
-# Check overall status
-/pm:epic-show memory-system
-```
-
-## Get Started Now
-
-### Quick Setup (2 minutes)
-
-1. **Install this repository into your project**:
-
-   #### Unix/Linux/macOS
-
-   ```bash
-   cd path/to/your/project/
-   curl -sSL https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.sh | bash
-   # or: wget -qO- https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.sh | bash
-   ```
-
-   #### Windows (PowerShell)
-   ```bash
-   cd path/to/your/project/
-   iwr -useb https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.bat | iex
-   ```
-   > ⚠️ **IMPORTANT**: If you already have a `.claude` directory, clone this repository to a different directory and copy the contents of the cloned `.claude` directory to your project's `.claude` directory.
-
-   See full/other installation options in the [installation guide ›](https://github.com/automazeio/ccpm/tree/main/install)
-
-
-2. **Initialize the PM system**:
-   ```bash
-   /pm:init
-   ```
-   This command will:
-   - Install GitHub CLI (if needed)
-   - Authenticate with GitHub
-   - Install [gh-sub-issue extension](https://github.com/yahsan2/gh-sub-issue) for proper parent-child relationships
-   - Create required directories
-   - Update .gitignore
-
-3. **Create `CLAUDE.md`** with your repository information
-   ```bash
-   /init include rules from .claude/CLAUDE.md
-   ```
-   > If you already have a `CLAUDE.md` file, run: `/re-init` to update it with important rules from `.claude/CLAUDE.md`.
-
-4. **Prime the system**:
-   ```bash
-   /context:create
-   ```
-
-
-
-### Start Your First Feature
-
-```bash
-/pm:prd-new your-feature-name
-```
-
-Watch as structured planning transforms into shipped code.
-
-## Local vs Remote
-
-| Operation | Local | GitHub |
-|-----------|-------|--------|
-| PRD Creation | ✅ | — |
-| Implementation Planning | ✅ | — |
-| Task Breakdown | ✅ | ✅ (sync) |
-| Execution | ✅ | — |
-| Status Updates | ✅ | ✅ (sync) |
-| Final Deliverables | — | ✅ |
-
-## Technical Notes
-
-### GitHub Integration
-- Uses **gh-sub-issue extension** for proper parent-child relationships
-- Falls back to task lists if extension not installed
-- Epic issues track sub-task completion automatically
-- Labels provide additional organization (`epic:feature`, `task:feature`)
-
-### File Naming Convention
-- Tasks start as `001.md`, `002.md` during decomposition
-- After GitHub sync, renamed to `{issue-id}.md` (e.g., `1234.md`)
-- Makes it easy to navigate: issue #1234 = file `1234.md`
-
-### Design Decisions
-- Intentionally avoids GitHub Projects API complexity
-- All commands operate on local files first for speed
-- Synchronization with GitHub is explicit and controlled
-- Worktrees provide clean git isolation for parallel work
-- GitHub Projects can be added separately for visualization
+This section satisfies the checklist requirement so we have a single documented workflow when the final parity tasks are done.
 
 ---
 
-## Support This Project
-
-Claude Code PM was developed at [Automaze](https://automaze.io) **for developers who ship, by developers who ship**.
-
-If Claude Code PM helps your team ship better software:
-
-- ⭐ **[Star this repository](https://github.com/automazeio/ccpm)** to show your support
-- 🐦 **[Follow @aroussi on X](https://x.com/aroussi)** for updates and tips
-
-
----
-
-> [!TIP]
-> **Ship faster with Automaze.** We partner with founders to bring their vision to life, scale their business, and optimize for success.
-> **[Visit Automaze to book a call with me ›](https://automaze.io)**
-
----
-
-## Star History
-
-![Star History Chart](https://api.star-history.com/svg?repos=automazeio/ccpm)
+Codex PM keeps multi-agent work grounded in specifications, enabling reliable handoffs between humans and Codex CLI while maintaining a clear audit trail in GitHub. Dive in, extend the command suite, and help us finish the GitHub integration phase.

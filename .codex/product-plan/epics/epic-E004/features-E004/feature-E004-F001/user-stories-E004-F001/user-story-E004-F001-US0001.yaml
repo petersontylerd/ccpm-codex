@@ -1,0 +1,61 @@
+# schema_version: 1.0.0
+metadata:
+  user_story_id: "US0001"                # e.g., "US0001" (sequential within feature)
+  parent_feature: "F001"               # e.g., "F001" (inherits E### from parent epic)
+  parent_epic: "E004"                  # e.g., "E001" (must match parent epic ID)
+  user_story_name: "Schedule parallel agents"              # short descriptive name
+  date: "2025-09-19 15:05:18 CT"
+  facilitator: "Codex PM"
+  based_on_artifacts:
+    - "brainstorm.yaml"
+    - "vision.yaml"
+    - "strategy.yaml"
+    - "roadmap.yaml"
+    - "development-considerations.yaml"
+    - "prd.yaml"
+    - "personas.yaml"
+    - "metrics.yaml"
+  schema_version: "1.0.0"
+github:
+  issue: 12345
+  url: "https://github.com/petersontylerd/ccpm-codex/issues/12345"
+  last_synced: "2025-09-19 18:35:11 CT"
+  last_status: "done"
+
+
+story:
+  as_a: "Project manager"                         # persona ID or role
+  i_want: "to assign agent workloads"                       # capability
+  so_that: "parallel tracks stay balanced"                      # value/outcome
+  description: "Covers scheduling logic for multiple Codex agents"                  # elaboration (scope, context, constraints)
+
+acceptance_criteria:
+  - id: "AC01"
+    given: "Agents assigned evenly"
+    when: "Scheduler distributes tasks"
+    then: "All agents get balanced workloads"
+  - id: "AC02"
+    given: "An agent is offline"
+    when: "Scheduler detects missing agent"
+    then: "Remaining agents receive redistributed tasks"
+linked_artifacts:
+  personas: []                     # persona IDs
+  workflows: []                    # workflow IDs
+  linked_prd_frs: []               # FR IDs the story helps satisfy
+  linked_strategy_goals: []        # SG IDs
+  linked_roadmap_horizons: []      # short-term | mid-term | long-term
+  linked_metrics: []               # metric IDs (M-01, NS-01, etc.)
+
+dependencies:
+  other_user_stories: []           # IDs of dependent stories
+
+risks_assumptions:
+  - id: ""
+    description: ""
+    type: ""                       # tech | data | ops | adoption
+    mitigation: ""
+    owner: ""
+
+prioritization:
+  priority: "Must"                     # Must | Should | Could | Won't
+  rationale: ""

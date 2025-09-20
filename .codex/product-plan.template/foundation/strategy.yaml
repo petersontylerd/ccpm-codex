@@ -1,0 +1,57 @@
+# schema_version: 1.0.0
+metadata:
+  project_code: ""            # must match brainstorm
+  product_name: ""            # must match brainstorm
+  date: ""                    # ISO 8601
+  facilitator: ""             # string
+  based_on_artifacts:
+    - "brainstorm.yaml"
+    - "vision.yaml"
+  schema_version: "1.0.0"
+
+strategic_goals:
+  - id: ""                    # e.g., "SG-01"
+    description: ""           # 1–2 sentences
+    time_horizon: ""          # enum: short-term | mid-term | long-term
+    linked_personas: []       # persona IDs from brainstorm (optional)
+    linked_roi: ""            # ROI reference from brainstorm (optional)
+    linked_pillars: []        # pillar IDs from vision (optional)
+
+strategic_choices:
+  do:
+    - id: ""                  # e.g., "C-DO-01"
+      description: ""          # what we will do
+      rationale: ""            # why prioritized
+      supported_by: []         # brainstorm/vision references (optional)
+  do_not:
+    - id: ""                  # e.g., "C-NOT-01"
+      description: ""          # what we will explicitly not do
+      rationale: ""            # why excluded
+      trade_off: ""            # trade-off vs. chosen path
+
+strategic_themes:
+  - id: ""                    # e.g., "THEME-01"
+    name: ""                  # short label
+    description: ""           # 1–2 sentences
+    linked_choices: []        # choice IDs
+    linked_pillars: []        # vision pillar IDs (optional)
+    linked_personas: []       # brainstorm persona IDs (optional)
+
+commercialization_approach:
+  revenue_model: ""           # how we plan to monetize (subscription, usage-based, license, etc.)
+  pricing_strategy_notes: ""  # high-level pricing approach and considerations
+  monetization_timeline: ""   # when commercialization becomes viable
+  linked_choices: []          # strategic choice IDs that enable commercialization
+
+risks_assumptions:
+  - id: ""                    # e.g., "STRAT-R-01"
+    description: ""
+    type: ""                  # tech|data|market|ops
+    mitigation: ""
+    owner: ""
+
+open_questions:
+  - id: ""                    # e.g., "Q-STRAT-01"
+    question: ""
+    blocking: false
+    owner: ""

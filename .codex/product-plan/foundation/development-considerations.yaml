@@ -1,0 +1,154 @@
+# schema_version: 1.0.0
+metadata:
+  project_code: ""
+  product_name: ""
+  date: ""
+  facilitator: ""
+  based_on_artifacts:
+    - "brainstorm.yaml"
+    - "vision.yaml"
+    - "strategy.yaml"
+    - "roadmap.yaml"
+    - "prd.yaml"
+  schema_version: "1.0.0"
+
+tech_stack_infra:
+  languages_frameworks:
+    prototype: []                   # required; e.g., ["Python", "Streamlit"]
+    production: []                   # required; e.g., ["Python", "FastAPI", "React"]
+    rationale: ""                    # pros/cons and lift-and-shift notes
+  data_infra:
+    prototype: []                   # required
+    production: []                   # required
+    rationale: ""
+  deployment_targets:
+    prototype: []                   # required
+    production: []                   # required
+    rationale: ""
+  ci_cd:
+    prototype: []                   # required
+    production: []                   # required
+    rationale: ""
+  monitoring_logging:
+    prototype: []                   # required
+    production: []                   # required
+    rationale: ""
+  vendor_constraints:
+    prototype: []                   # required
+    production: []                   # required
+    rationale: ""
+
+descriptive_analytics_infra:
+  dashboard_hosting:
+    prototype: ""                   # required; e.g., "Streamlit local", "Jupyter notebooks"
+    production: ""                  # required; e.g., "Tableau Server", "Grafana cluster"
+    rationale: ""                   # pros/cons and lift-and-shift notes
+  business_rule_engines:
+    prototype: ""                   # required; e.g., "Python scripts", "Excel formulas"
+    production: ""                  # required; e.g., "Drools", "custom rule engine"
+    rationale: ""
+  statistical_processing:
+    prototype: ""                   # required; e.g., "pandas", "local R scripts"
+    production: ""                  # required; e.g., "Spark", "distributed computing"
+    rationale: ""
+  data_pipelines:
+    prototype: ""                   # required; e.g., "manual CSV loads", "cron jobs"
+    production: ""                  # required; e.g., "Airflow", "managed ETL service"
+    rationale: ""
+
+machine_learning_infra:
+  training_infrastructure:
+    prototype: ""                   # required; e.g., "local GPU", "cloud notebooks"
+    production: ""                  # required; e.g., "Kubernetes jobs", "SageMaker"
+    rationale: ""
+  feature_stores:
+    prototype: ""                   # required; e.g., "CSV files", "local database"
+    production: ""                  # required; e.g., "Feast", "SageMaker Feature Store"
+    rationale: ""
+  model_serving:
+    prototype: ""                   # required; e.g., "Flask API", "local inference"
+    production: ""                  # required; e.g., "KServe", "SageMaker endpoints"
+    rationale: ""
+  model_versioning:
+    prototype: ""                   # required; e.g., "git tags", "manual tracking"
+    production: ""                  # required; e.g., "MLflow", "model registry"
+    rationale: ""
+  monitoring_drift:
+    prototype: ""                   # required; e.g., "manual checks", "basic logging"
+    production: ""                  # required; e.g., "evidently AI", "automated alerts"
+    rationale: ""
+
+generative_ai_infra:
+  llm_hosting:
+    prototype: ""                   # required; e.g., "OpenAI API", "local Ollama"
+    production: ""                  # required; e.g., "Azure OpenAI", "self-hosted cluster"
+    rationale: ""
+  vector_databases:
+    prototype: ""                   # required; e.g., "FAISS local", "in-memory search"
+    production: ""                  # required; e.g., "Pinecone", "Weaviate cluster"
+    rationale: ""
+  prompt_management:
+    prototype: ""                   # required; e.g., "hardcoded strings", "config files"
+    production: ""                  # required; e.g., "LangSmith", "custom prompt store"
+    rationale: ""
+  guardrails_infrastructure:
+    prototype: ""                   # required; e.g., "basic filtering", "manual review"
+    production: ""                  # required; e.g., "Guardrails AI", "content safety APIs"
+    rationale: ""
+  cost_management:
+    prototype: ""                   # required; e.g., "usage tracking", "simple limits"
+    production: ""                  # required; e.g., "budget alerts", "rate limiting"
+    rationale: ""
+
+data_integration_infra:
+  ingestion:
+    prototype: ""                   # required; e.g., "manual uploads", "simple scripts"
+    production: ""                  # required; e.g., "Kafka", "managed streaming"
+    rationale: ""
+  storage:
+    prototype: ""                   # required; e.g., "local files", "single database"
+    production: ""                  # required; e.g., "data lake", "distributed storage"
+    rationale: ""
+  transformation:
+    prototype: ""                   # required; e.g., "pandas scripts", "SQL queries"
+    production: ""                  # required; e.g., "dbt", "Spark pipelines"
+    rationale: ""
+  shared_apis:
+    prototype: ""                   # required; e.g., "direct database access", "simple REST"
+    production: ""                  # required; e.g., "GraphQL", "API gateway"
+    rationale: ""
+
+cross_cutting_concerns:
+  security_auth:
+    prototype: ""
+    production: ""
+    rationale: ""
+  observability:
+    prototype: ""
+    production: ""
+    rationale: ""
+  error_handling:
+    prototype: ""
+    production: ""
+    rationale: ""
+  scaling_patterns:
+    prototype: ""
+    production: ""
+    rationale: ""
+  performance_notes:
+    prototype: ""
+    production: ""
+    rationale: ""
+
+feasibility_risks:
+  - id: ""
+    description: ""
+    type: ""                        # infra | data | ai | scaling | security
+    mitigation: ""
+    owner: ""
+
+open_questions:
+  - id: ""
+    question: ""
+    blocking: false
+    owner: ""

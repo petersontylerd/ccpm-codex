@@ -1,157 +1,42 @@
-# Commands
+# Codex Command Reference
 
-Complete reference of all commands available in the Claude Code PM system.
+Every Codex prompt in `.codex/prompts/` has a matching shell script in `.codex/scripts/`. This keeps conversations, local CLI usage, and automation in sync.
 
-> **Note**: Project Management commands (`/pm:*`) are documented in the main [README.md](README.md#command-reference).
+| Command | Prompt | Script | Purpose |
+| --- | --- | --- | --- |
+| `/ops:offline-queue` | `.codex/prompts/ops/offline-queue.md` | `.codex/scripts/ops/offline-queue.sh` | Inspect/export (`--export`), replay (filters: `--epic`, `--type`, `--force`, `--prune`, `--report`), or clear `.codex/product-plan/offline-sync-queue.log`. |
+| `/plan:init` | `.codex/prompts/plan/init.md` | `.codex/scripts/plan/init.sh` | Copy the product-plan template, stamp metadata, enforce `gh` + `gh-sub-issue`, and create revision logs. |
+| `/plan:status` | `.codex/prompts/plan/status.md` | `.codex/scripts/plan/status.sh` | Summarize product stats (epics, features, stories) plus revision data. |
+| `/plan:prd-update` | `.codex/prompts/plan/prd-update.md` | `.codex/scripts/plan/prd-update.sh` | Update PRD metadata/overview fields, manage goal lists, and append revision entries. |
+| `/plan:personas-update` | `.codex/prompts/plan/personas-update.md` | `.codex/scripts/plan/personas-update.sh` | Merge persona/buyer/influencer data by id/role and record revisions. |
+| `/plan:strategy-update` | `.codex/prompts/plan/strategy-update.md` | `.codex/scripts/plan/strategy-update.sh` | Update strategic goals/choices/themes, commercialization notes, and log revisions. |
+| `/plan:roadmap-update` | `.codex/prompts/plan/roadmap-update.md` | `.codex/scripts/plan/roadmap-update.sh` | Merge roadmap metadata, horizons, risks, and questions with revision logging. |
+| `/context:prime` | `.codex/prompts/context/prime.md` | `.codex/scripts/context/prime.sh` | Prime a Codex session with plan highlights, revisions, and epics/feature snapshots. |
+| `/ops:status` | `.codex/prompts/ops/status.md` | `.codex/scripts/ops/status.sh` | Show operational metrics and data-quality flags. |
+| `/epic:new` | `.codex/prompts/epic/new.md` | `.codex/scripts/epic/new.sh` | Create a new epic from the template with sequential IDs and revision logging. |
+| `/epic:update` | `.codex/prompts/epic/update.md` | `.codex/scripts/epic/update.sh` | Edit existing epic metadata/overview fields. |
+| `/feature:new` | `.codex/prompts/feature/new.md` | `.codex/scripts/feature/new.sh` | Add a feature under an epic (auto IDs, timestamping). |
+| `/feature:update` | `.codex/prompts/feature/update.md` | `.codex/scripts/feature/update.sh` | Update feature overview metadata (description, user value, priority, facilitator). |
+| `/story:new` | `.codex/prompts/story/new.md` | `.codex/scripts/story/new.sh` | Create a user story with full metadata and log the change. |
+| `/story:update` | `.codex/prompts/story/update.md` | `.codex/scripts/story/update.sh` | Update story metadata and rewrite acceptance criteria using `--acceptance "ID|Given|When|Then"`. |
+| `/testing:red` | `.codex/prompts/testing/red.md` | `.codex/scripts/testing/red.sh` | Run a targeted command expecting failure, confirm red phase, and journal the result. |
+| `/testing:run` | `.codex/prompts/testing/run.md` | `.codex/scripts/testing/run.sh` | Execute tests, log output under `tests/logs/`, and stamp execution windows in Central Time. |
+| `/testing:refactor` | `.codex/prompts/testing/refactor.md` | `.codex/scripts/testing/refactor.sh` | Verify the suite stays green during refactor/cleanup and journal the success. |
+| `/ops:github-sync` | `.codex/prompts/ops/github-sync.md` | `.codex/scripts/ops/github-sync.sh` | Preview/apply GitHub updates with type filters, cached `--diff`, label add/remove flags, `--select` filtering, JSON `--report`, and `--local-only` plan-only updates (skips logged to `offline-sync-queue.log`). |
+| `/ops:github-pull` | `.codex/prompts/ops/github-pull.md` | `.codex/scripts/ops/github-pull.sh` | Refresh plan metadata from existing GitHub issues (`--apply`, `--local-only`, `--note`, `--type`, `--epic`). |
+| `/ops:issue-start` | `.codex/prompts/ops/issue-start.md` | `.codex/scripts/ops/issue-start.sh` | Mark an issue in progress, append to the local log, and optionally assign via GitHub. |
+| `/ops:issue-sync` | `.codex/prompts/ops/issue-sync.md` | `.codex/scripts/ops/issue-sync.sh` | Record progress notes, refresh timestamps, and optionally comment on the GitHub issue. |
+| `/ops:issue-close` | `.codex/prompts/ops/issue-close.md` | `.codex/scripts/ops/issue-close.sh` | Close the issue, set local status to `done`, and log completion details. |
 
-## Table of Contents
+## Upcoming GitHub Enhancements
 
-- [Context Commands](#context-commands)
-- [Testing Commands](#testing-commands)
-- [Utility Commands](#utility-commands)
-- [Review Commands](#review-commands)
+- Richer sync options for `/ops:github-sync` (plan-level diffs, label management) and automation around multi-issue batching.
 
-## Context Commands
+See [docs/codex-migration.md](docs/codex-migration.md#upcoming-github-command-design) for ongoing roadmap notes.
 
-Commands for managing project context in `.claude/context/`.
+## Usage Notes
 
-### `/context:create`
-- **Purpose**: Create initial project context documentation
-- **Usage**: `/context:create`
-- **Description**: Analyzes the project structure and creates comprehensive baseline documentation in `.claude/context/`. Includes project overview, architecture, dependencies, and patterns.
-- **When to use**: At project start or when context needs full rebuild
-- **Output**: Multiple context files covering different aspects of the project
-
-### `/context:update`
-- **Purpose**: Update existing context with recent changes
-- **Usage**: `/context:update`
-- **Description**: Refreshes context documentation based on recent code changes, new features, or architectural updates. Preserves existing context while adding new information.
-- **When to use**: After significant changes or before major work sessions
-- **Output**: Updated context files with change tracking
-
-### `/context:prime`
-- **Purpose**: Load context into current conversation
-- **Usage**: `/context:prime`
-- **Description**: Reads all context files and loads them into the current conversation's memory. Essential for maintaining project awareness.
-- **When to use**: At the start of any work session
-- **Output**: Confirmation of loaded context
-
-## Testing Commands
-
-Commands for test configuration and execution.
-
-### `/testing:prime`
-- **Purpose**: Configure testing setup
-- **Usage**: `/testing:prime`
-- **Description**: Detects and configures the project's testing framework, creates testing configuration, and prepares the test-runner agent.
-- **When to use**: Initial project setup or when testing framework changes
--  **Output**: `.claude/testing-config.md` with test commands and patterns
-
-### `/testing:run`
-- **Purpose**: Execute tests with intelligent analysis
-- **Usage**: `/testing:run [test_target]`
-- **Description**: Runs tests using the test-runner agent which captures output to logs and returns only essential results to preserve context.
-- **Options**:
-   - No arguments: Run all tests
-   - File path: Run specific test file
-   - Pattern: Run tests matching pattern
-- **Output**: Test summary with failures analyzed, no verbose output in main thread
-
-## Utility Commands
-
-General utility and maintenance commands.
-
-### `/prompt`
-- **Purpose**: Handle complex prompts with multiple references
-- **Usage**: Write your prompt in the file, then type `/prompt`
-- **Description**: Ephemeral command for when complex prompts with numerous @ references fail in direct input. The prompt is written to the command file first, then executed.
-- **When to use**: When Claude's UI rejects complex prompts
-- **Output**: Executes the written prompt
-
-### `/re-init`
-- **Purpose**: Update or create CLAUDE.md with PM rules
-- **Usage**: `/re-init`
-- **Description**: Updates the project's CLAUDE.md file with rules from `.claude/CLAUDE.md`, ensuring Claude instances have proper instructions.
-- **When to use**: After cloning PM system or updating rules
-- **Output**: Updated CLAUDE.md in project root
-
-## Review Commands
-
-Commands for handling external code review tools.
-
-### `/code-rabbit`
-- **Purpose**: Process CodeRabbit review comments intelligently
-- **Usage**: `/code-rabbit` then paste comments
-- **Description**: Evaluates CodeRabbit suggestions with context awareness, accepting valid improvements while ignoring context-unaware suggestions. Spawns parallel agents for multi-file reviews.
-- **Features**:
-   - Understands CodeRabbit lacks full context
-   - Accepts: Real bugs, security issues, resource leaks
-   - Ignores: Style preferences, irrelevant patterns
-   - Parallel processing for multiple files
-- **Output**: Summary of accepted/ignored suggestions with reasoning
-
-## Command Patterns
-
-All commands follow consistent patterns:
-
-### Allowed Tools
-Each command specifies its required tools in frontmatter:
-- `Read, Write, LS` - File operations
-- `Bash` - System commands
-- `Task` - Sub-agent spawning
-- `Grep` - Code searching
-
-### Error Handling
-Commands follow fail-fast principles:
-- Check prerequisites first
-- Clear error messages with solutions
-- Never leave partial state
-
-### Context Preservation
-Commands that process lots of information:
-- Use agents to shield main thread from verbose output
-- Return summaries, not raw data
-- Preserve only essential information
-
-## Creating Custom Commands
-
-To add new commands:
-
-1. **Create file**: `commands/category/command-name.md`
-2. **Add frontmatter**:
-   ```yaml
-   ---
-   allowed-tools: Read, Write, LS
-   ---
-   ```
-3. **Structure content**:
-   - Purpose and usage
-   - Preflight checks
-   - Step-by-step instructions
-   - Error handling
-   - Output format
-
-4. **Follow patterns**:
-   - Keep it simple (no over-validation)
-   - Fail fast with clear messages
-   - Use agents for heavy processing
-   - Return concise output
-
-## Integration with Agents
-
-Commands often use agents for heavy lifting:
-
-- **test-runner**: Executes tests, analyzes results
-- **file-analyzer**: Summarizes verbose files
-- **code-analyzer**: Hunts bugs across codebase
-- **parallel-worker**: Coordinates parallel execution
-
-This keeps the main conversation context clean while doing complex work.
-
-## Notes
-
-- Commands are markdown files interpreted as instructions
-- The `/` prefix triggers command execution
-- Commands can spawn agents for context preservation
-- All PM commands (`/pm:*`) are documented in the main README
-- Commands follow rules defined in `/rules/`
+- Each script sources `.codex/scripts/lib/init.sh` to pick up logging, timestamp, and GitHub helpers.
+- All timestamps are Central Time (`America/Chicago`) via `get_chicago_timestamp`.
+- GitHub commands fail fast if `gh` or `gh-sub-issue` are missing and provide installation guidance.
+- Running commands via the CLI or Codex prompt produce identical output, making it easy to script workflows or share logs in PRs/issues.

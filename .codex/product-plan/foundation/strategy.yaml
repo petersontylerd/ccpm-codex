@@ -1,0 +1,41 @@
+metadata:
+  project_code: CCPM-CODEX
+  product_name: Codex PM for CLI
+  date: ''
+  facilitator: ''
+  based_on_artifacts:
+  - brainstorm.yaml
+  - vision.yaml
+  schema_version: 1.0.0
+strategic_goals:
+- id: SG-01
+  description: Maintain spec-driven parity between plan and GitHub
+  time_horizon: short-term
+strategic_choices:
+  do:
+  - id: C-DO-01
+    description: Automate issue sync via gh sub-issue
+    rationale: Keep human effort minimal
+  do_not:
+  - id: C-NOT-01
+    description: Depend on manual issue creation
+    rationale: Too slow for multi-agent workflows
+strategic_themes:
+- id: THEME-01
+  name: Transparency
+  description: Expose plan → GitHub diffs for every run
+commercialization_approach:
+  revenue_model: Support subscription
+  pricing_strategy_notes: Tiered by number of active Codex agents
+  monetization_timeline: ''
+  linked_choices: []
+risks_assumptions:
+- id: STRAT-R-01
+  description: gh-sub-issue may change behaviour
+  type: ops
+  mitigation: Pin version + monitor releases
+open_questions:
+- id: Q-STRAT-01
+  question: Should we support GitHub Projects automation?
+  blocking: false
+  owner: Strategy

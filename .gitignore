@@ -1,2 +1,5 @@
 .DS_Store
 CLAUDE.md
+
+.codex/product-plan/offline-sync-queue.log
+tests/logs/*.log

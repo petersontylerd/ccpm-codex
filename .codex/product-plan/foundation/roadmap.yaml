@@ -1,0 +1,70 @@
+# schema_version: 1.0.0
+metadata:
+  project_code: ""              # must match brainstorm
+  product_name: ""              # must match brainstorm
+  date: ""                      # ISO 8601
+  facilitator: ""               # string
+  based_on_artifacts:
+    - "brainstorm.yaml"
+    - "vision.yaml"
+    - "strategy.yaml"
+  schema_version: "1.0.0"
+
+time_horizons:
+  short_term:
+    goals:                      # must reference strategy goal IDs
+      - "SG-01"
+    themes:                     # must reference strategy theme IDs
+      - "THEME-01"
+    milestones:                 # at least one required
+      - id: ""                  # e.g., "M-01"
+        description: ""          # what is delivered
+        key_outcome: ""          # impact achieved (e.g., adoption validated)
+        linked_goals: []         # SG IDs
+        linked_themes: []        # THEME IDs
+        dependencies: []         # milestone IDs this depends on (optional)
+        timing_rationale: ""     # market timing and competitive considerations
+        risk_of_delay: ""        # impact if this milestone is delayed
+
+  mid_term:
+    goals:
+      - "SG-02"
+    themes:
+      - "THEME-02"
+    milestones:
+      - id: ""
+        description: ""
+        key_outcome: ""
+        linked_goals: []
+        linked_themes: []
+        dependencies: []
+        timing_rationale: ""
+        risk_of_delay: ""
+
+  long_term:
+    goals:
+      - "SG-03"
+    themes:
+      - "THEME-03"
+    milestones:
+      - id: ""
+        description: ""
+        key_outcome: ""
+        linked_goals: []
+        linked_themes: []
+        dependencies: []
+        timing_rationale: ""
+        risk_of_delay: ""
+
+risks_assumptions:
+  - id: ""                      # e.g., "RM-R-01"
+    description: ""
+    type: ""                    # sequencing
+    mitigation: ""
+    owner: ""
+
+open_questions:
+  - id: ""                      # e.g., "Q-RM-01"
+    question: ""
+    blocking: false
+    owner: ""

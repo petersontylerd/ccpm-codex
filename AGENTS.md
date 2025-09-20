@@ -1,112 +1,38 @@
-# Agents
+# Codex Agent & Command Patterns
 
-Specialized agents that do heavy work and return concise summaries to preserve context.
+This repository now orients all guided workflows around Codex CLI prompts and shell scripts that live under `.codex/`. Legacy Claude assets have been removed after migration; the history is documented in `docs/codex-migration.md`.
 
-## Core Philosophy
+## Where Things Live
 
-> “Don't anthropomorphize subagents. Use them to organize your prompts and elide context. Subagents are best when they can do lots of work but then provide small amounts of information back to the main conversation thread.”
->
-> – Adam Wolff, Anthropic
+- `.codex/prompts/` – Codex-facing prompts. Each prompt mirrors a shell script with the same path/name.
+- `.codex/scripts/` – Executable helpers the prompts invoke. Shared utilities live in `.codex/scripts/lib/`.
+- `.codex/rules/` – Global rules applied to Codex sessions (Central Time timestamps, TDD expectations, etc.).
+- `.codex/product-plan/` – Source of truth for the PRD, epics, features, and user stories.
+- `tests/logs/` – Output from `/testing:*` commands, plus the TDD journal (`tdd-history.log`).
 
-## Available Agents
+Legacy Claude assets have been removed; refer to `docs/claude-removal-checklist.md` for the process we followed.
 
-### 🔍 `code-analyzer`
-- **Purpose**: Hunt bugs across multiple files without polluting main context
-- **Pattern**: Search many files → Analyze code → Return bug report
-- **Usage**: When you need to trace logic flows, find bugs, or validate changes
-- **Returns**: Concise bug report with critical findings only
+## Recommended Agent Invocations
 
-### 📄 `file-analyzer`
-- **Purpose**: Read and summarize verbose files (logs, outputs, configs)
-- **Pattern**: Read files → Extract insights → Return summary
-- **Usage**: When you need to understand log files or analyze verbose output
-- **Returns**: Key findings and actionable insights (80-90% size reduction)
+| Goal | Prompt / Script | What It Does |
+| --- | --- | --- |
+| Prime context | `/context:prime` → `.codex/scripts/context/prime.sh` | Summarises PRD metadata, recent revisions, and epic/feature snapshots so Codex starts grounded. |
+| Inspect plan | `/plan:status` → `.codex/scripts/plan/status.sh` | Counts epics/features/stories and reports latest revision info. |
+| Update PRD | `/plan:prd-update` → `.codex/scripts/plan/prd-update.sh` | Edits PRD metadata, summary, and goal lists with full revision logging. |
+| Maintain personas | `/plan:personas-update` → `.codex/scripts/plan/personas-update.sh` | Merges persona/buyer/influencer records by id/role and removes placeholders. |
+| Maintain strategy | `/plan:strategy-update` → `.codex/scripts/plan/strategy-update.sh` | Updates strategic goals/choices/themes and commercialization notes. |
+| Grow hierarchy | `/epic:new`, `/feature:new`, `/story:new` | Copies templates, stamps Central Time, and logs changes. |
+| Edit hierarchy | `/epic:update`, `/feature:update`, `/story:update` | In-place YAML edits that keep revision history aligned. |
+| Enforce TDD | `/testing:red`, `/testing:run`, `/testing:refactor` | Confirm red/green cycles, capture execution windows, and append entries to the TDD journal. |
+| GitHub sync | `/ops:github-sync` | Preview/apply hierarchy updates; outputs diff + plan summaries and records results in the plan. |
+| GitHub pull | `/ops:github-pull` | Refresh local metadata with remote issue state while obeying Central Time logging. |
+| Offline queue | `/ops:offline-queue` | Inspect/export queued creations, replay them once connectivity returns, or clear the queue. |
 
-### 🧪 `test-runner`
-- **Purpose**: Execute tests without dumping output to main thread
-- **Pattern**: Run tests → Capture to log → Analyze results → Return summary
-- **Usage**: When you need to run tests and understand failures
-- **Returns**: Test results summary with failure analysis
+## Working With Agents
 
-### 🔀 `parallel-worker`
-- **Purpose**: Coordinate multiple parallel work streams for an issue
-- **Pattern**: Read analysis → Spawn sub-agents → Consolidate results → Return summary
-- **Usage**: When executing parallel work streams in a worktree
-- **Returns**: Consolidated status of all parallel work
+1. **Keep heavy work in sub-agents.** Invocations like `/testing:red` or `/ops:github-sync --diff` keep verbose output out of the main conversation.
+2. **Respect the rules.** Source `.codex/scripts/lib/init.sh` in bespoke helpers so you inherit logging, timestamp, and GitHub checks.
+3. **Close the loop.** After significant changes, update the product plan (PRD, personas, strategy, epics, features, stories) so downstream agents read canonical data. See `docs/foundation-updates.md` for payload patterns.
+4. **Journal the cycle.** Use the TDD helpers to document red → green → refactor impact in `tests/logs/tdd-history.log`.
 
-## Why Agents?
-
-Agents are **context firewalls** that protect the main conversation from information overload:
-
-```
-Without Agent:
-Main thread reads 10 files → Context explodes → Loses coherence
-
-With Agent:
-Agent reads 10 files → Main thread gets 1 summary → Context preserved
-```
-
-## How Agents Preserve Context
-
-1. **Heavy Lifting** - Agents do the messy work (reading files, running tests, implementing features)
-2. **Context Isolation** - Implementation details stay in the agent, not the main thread
-3. **Concise Returns** - Only essential information returns to main conversation
-4. **Parallel Execution** - Multiple agents can work simultaneously without context collision
-
-## Example Usage
-
-```bash
-# Analyzing code for bugs
-Task: "Search for memory leaks in the codebase"
-Agent: code-analyzer
-Returns: "Found 3 potential leaks: [concise list]"
-Main thread never sees: The hundreds of files examined
-
-# Running tests
-Task: "Run authentication tests"
-Agent: test-runner
-Returns: "2/10 tests failed: [failure summary]"
-Main thread never sees: Verbose test output and logs
-
-# Parallel implementation
-Task: "Implement issue #1234 with parallel streams"
-Agent: parallel-worker
-Returns: "Completed 4/4 streams, 15 files modified"
-Main thread never sees: Individual implementation details
-```
-
-## Creating New Agents
-
-New agents should follow these principles:
-
-1. **Single Purpose** - Each agent has one clear job
-2. **Context Reduction** - Return 10-20% of what you process
-3. **No Roleplay** - Agents aren't "experts", they're task executors
-4. **Clear Pattern** - Define input → processing → output pattern
-5. **Error Handling** - Gracefully handle failures and report clearly
-
-## Anti-Patterns to Avoid
-
-❌ **Creating "specialist" agents** (database-expert, api-expert)
-   Agents don't have different knowledge - they're all the same model
-
-❌ **Returning verbose output**
-   Defeats the purpose of context preservation
-
-❌ **Making agents communicate with each other**
-   Use a coordinator agent instead (like parallel-worker)
-
-❌ **Using agents for simple tasks**
-   Only use agents when context reduction is valuable
-
-## Integration with PM System
-
-Agents integrate seamlessly with the PM command system:
-
-- `/pm:issue-analyze` → Identifies work streams
-- `/pm:issue-start` → Spawns parallel-worker agent
-- parallel-worker → Spawns multiple sub-agents
-- Sub-agents → Work in parallel in the worktree
-- Results → Consolidated back to main thread
-
-This creates a hierarchy that maximizes parallelism while preserving context at every level.
+When in doubt, run `docs/codex-migration.md` for the latest status and roadmap updates.

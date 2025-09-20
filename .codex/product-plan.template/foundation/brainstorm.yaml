@@ -1,0 +1,161 @@
+# schema_version: 1.0.0
+metadata:
+  project_code: ""            # string, e.g., "APOLLO"
+  product_name: ""            # string
+  date: ""                    # ISO 8601
+  facilitator: ""             # string
+  stakeholders: []            # [name or role]
+  schema_version: "1.0.0"     # fixed
+
+context:
+  elevator_pitch_one_liner: ""     # string
+  elevator_pitch_30sec: ""         # string
+  problem_statement: ""            # who, pain, frequency, workaround
+  non_goals: []                    # [string]
+  assumptions: []                  # [string]
+
+personas:
+  primary:
+    - id: ""                       # e.g., "P-01"
+      name: ""
+      role: ""
+      jtbd: []                     # [situation → motivation → outcome]
+      pains: []
+      success_criteria: []
+      environment:
+        devices: []
+        systems: []
+      data_literacy: ""            # low|medium|high
+      ai_comfort: ""               # low|medium|high
+  secondary: []                    # same shape as primary (optional)
+  buyers: []                       # simple strings for now
+  influencers: []                  # simple strings for now
+
+workflows:
+  - id: ""                         # e.g., "WF-01"
+    name: ""
+    trigger: ""
+    actors: []                     # [persona.id or role]
+    preconditions: []
+    steps: []
+    success_criteria: []
+    failure_modes: []
+    systems: []
+    inputs: []
+    outputs: []
+    slas:
+      latency_ms: 0
+      availability: ""
+      data_freshness: ""
+
+market:
+  segments: []
+  icp: ""
+  competitors_alternatives: []
+  differentiators: []
+  adoption_risks: []               # pricing/GTM intentionally excluded here
+  problem_frequency_evidence: ""   # where/how often problem heard, demand signals
+  client_spending_on_alternatives: []  # what clients currently pay for solutions
+  client_kpi_alignment: []         # high-visibility metrics clients are accountable for
+
+data:
+  sources: []
+  ownership: ""
+  volume_scale: ""
+  freshness: ""
+  quality_issues: []
+  access_constraints: []
+  pii_sensitivity: ""              # none|low|medium|high
+  governance_notes: ""
+
+descriptive_analytics:
+  business_rules: []                   # [rule description and logic]
+  statistical_methods: []             # [statistical approaches for analysis]
+  heuristics: []                      # [decision rules and shortcuts]
+  dashboard_requirements: []          # [visualization and reporting needs]
+  end_user_value: ""                  # how this solves user pain points
+  roi_drivers: []                     # [business value and impact areas]
+
+machine_learning:
+  candidate_models: []                # [model types and approaches]
+  prediction_targets: []              # [what outcomes to predict]
+  feature_requirements: []           # [data inputs and transformations]
+  end_user_value: ""                 # how this solves user pain points
+  roi_drivers: []                    # [business value and impact areas]
+  interpretability_needs: ""         # transparency and explainability requirements
+
+generative_ai:
+  llm_use_cases: []                  # [specific applications and scenarios]
+  rag_requirements: []               # [retrieval and context needs]
+  agent_workflows: []                # [autonomous task sequences]
+  prompting_strategy: ""             # approach to prompt design and optimization
+  end_user_value: ""                 # how this solves user pain points
+  roi_drivers: []                    # [business value and impact areas]
+  cost_management: ""                # token usage and expense considerations
+
+ai_integration:
+  interdependencies: []              # [how approaches complement each other]
+  data_flow: ""                      # data movement between analytical methods
+  combined_workflows: []             # [end-to-end processes using multiple approaches]
+  orchestration_needs: ""            # coordination and sequencing requirements
+
+value_roi:
+  outcomes: []
+  roi_formula: ""                  # explicit formula required
+  roi_inputs:
+    - name: ""
+      value: 0
+      unit: ""
+      source: ""
+  payback_period_months: 0
+
+commercialization:
+  willingness_to_pay_evidence: []   # [market validation signals, evidence of payment behavior]
+  monetization_path_options: []     # [revenue model candidates, pricing approaches]
+  competitive_spend_analysis: ""    # what market pays for similar solutions
+  strategic_timing_rationale: ""    # why test now vs later, urgency drivers
+
+requirements:
+  functional_hypotheses: []
+  non_functional:
+    availability: ""
+    latency_ms_p95: 0
+    throughput_rps: 0
+    privacy_compliance: []         # optional at prototype stage
+    localization: []
+    observability: []
+
+metrics:
+  north_star: ""
+  input_metrics: []
+  proxy_metrics: []
+
+risks:
+  - id: ""                         # e.g., "R-01"
+    description: ""
+    type: ""                       # tech|data|legal|market|ops
+    mitigation: ""
+    owner: ""
+
+experiments:
+  - id: ""                         # e.g., "EXP-01"
+    hypothesis: ""
+    test: ""
+    success_metric: ""
+    expected_effect: ""
+    next_step_if_win: ""
+    next_step_if_lose: ""
+    status: ""                     # planned|running|done
+
+decision_log:
+  - id: ""                         # e.g., "D-01"
+    decision: ""
+    rationale: ""
+    date: ""
+    owners: []
+
+open_questions:
+  - id: ""                         # e.g., "Q-01"
+    question: ""
+    blocking: false
+    owner: ""
