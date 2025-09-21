@@ -1,6 +1,6 @@
 # Codex Agent & Command Patterns
 
-This repository now orients all guided workflows around Codex CLI prompts and shell scripts that live under `.codex/`. Legacy Claude assets have been removed after migration; the history is documented in `docs/codex-migration.md`.
+This repository now orients all guided workflows around Codex CLI prompts and shell scripts that live under `.codex/`. Legacy Claude assets have been removed after migration; the history is documented in `docs/archive/codex-migration.md`.
 
 ## Where Things Live
 
@@ -10,7 +10,7 @@ This repository now orients all guided workflows around Codex CLI prompts and sh
 - `.codex/product-plan/` – Source of truth for the PRD, epics, features, and user stories.
 - `tests/logs/` – Output from `/testing:*` commands, plus the TDD journal (`tdd-history.log`).
 
-Legacy Claude assets have been removed; refer to `docs/claude-removal-checklist.md` for the process we followed.
+Legacy Claude assets have been removed; refer to `docs/archive/claude-removal-checklist.md` for the process we followed.
 
 ## Recommended Agent Invocations
 
@@ -21,7 +21,7 @@ Legacy Claude assets have been removed; refer to `docs/claude-removal-checklist.
 | Update PRD | `/plan:prd-update` → `.codex/scripts/plan/prd-update.sh` | Edits PRD metadata, summary, and goal lists with full revision logging. |
 | Maintain personas | `/plan:personas-update` → `.codex/scripts/plan/personas-update.sh` | Merges persona/buyer/influencer records by id/role and removes placeholders. |
 | Maintain strategy | `/plan:strategy-update` → `.codex/scripts/plan/strategy-update.sh` | Updates strategic goals/choices/themes and commercialization notes. |
-| Grow hierarchy | `/epic:new`, `/feature:new`, `/story:new` | Copies templates, stamps Central Time, and logs changes. |
+| Grow hierarchy | `/epic:new`, `/feature:new`, `/story:new` | Scaffolds new YAML, stamps Central Time, and logs changes. |
 | Edit hierarchy | `/epic:update`, `/feature:update`, `/story:update` | In-place YAML edits that keep revision history aligned. |
 | Enforce TDD | `/testing:red`, `/testing:run`, `/testing:refactor` | Confirm red/green cycles, capture execution windows, and append entries to the TDD journal. |
 | GitHub sync | `/ops:github-sync` | Preview/apply hierarchy updates; outputs diff + plan summaries and records results in the plan. |
@@ -35,4 +35,4 @@ Legacy Claude assets have been removed; refer to `docs/claude-removal-checklist.
 3. **Close the loop.** After significant changes, update the product plan (PRD, personas, strategy, epics, features, stories) so downstream agents read canonical data. See `docs/foundation-updates.md` for payload patterns.
 4. **Journal the cycle.** Use the TDD helpers to document red → green → refactor impact in `tests/logs/tdd-history.log`.
 
-When in doubt, run `docs/codex-migration.md` for the latest status and roadmap updates.
+When in doubt, run `docs/archive/codex-migration.md` for the latest status and roadmap updates.

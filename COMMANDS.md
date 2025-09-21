@@ -5,7 +5,7 @@ Every Codex prompt in `.codex/prompts/` has a matching shell script in `.codex/s
 | Command | Prompt | Script | Purpose |
 | --- | --- | --- | --- |
 | `/ops:offline-queue` | `.codex/prompts/ops/offline-queue.md` | `.codex/scripts/ops/offline-queue.sh` | Inspect/export (`--export`), replay (filters: `--epic`, `--type`, `--force`, `--prune`, `--report`), or clear `.codex/product-plan/offline-sync-queue.log`. |
-| `/plan:init` | `.codex/prompts/plan/init.md` | `.codex/scripts/plan/init.sh` | Copy the product-plan template, stamp metadata, enforce `gh` + `gh-sub-issue`, and create revision logs. |
+| `/plan:init` | `.codex/prompts/plan/init.md` | `.codex/scripts/plan/init.sh` | Validate the existing product plan, enforce `gh` + `gh-sub-issue`, and record a revision entry. |
 | `/plan:status` | `.codex/prompts/plan/status.md` | `.codex/scripts/plan/status.sh` | Summarize product stats (epics, features, stories) plus revision data. |
 | `/plan:prd-update` | `.codex/prompts/plan/prd-update.md` | `.codex/scripts/plan/prd-update.sh` | Update PRD metadata/overview fields, manage goal lists, and append revision entries. |
 | `/plan:personas-update` | `.codex/prompts/plan/personas-update.md` | `.codex/scripts/plan/personas-update.sh` | Merge persona/buyer/influencer data by id/role and record revisions. |
@@ -13,7 +13,7 @@ Every Codex prompt in `.codex/prompts/` has a matching shell script in `.codex/s
 | `/plan:roadmap-update` | `.codex/prompts/plan/roadmap-update.md` | `.codex/scripts/plan/roadmap-update.sh` | Merge roadmap metadata, horizons, risks, and questions with revision logging. |
 | `/context:prime` | `.codex/prompts/context/prime.md` | `.codex/scripts/context/prime.sh` | Prime a Codex session with plan highlights, revisions, and epics/feature snapshots. |
 | `/ops:status` | `.codex/prompts/ops/status.md` | `.codex/scripts/ops/status.sh` | Show operational metrics and data-quality flags. |
-| `/epic:new` | `.codex/prompts/epic/new.md` | `.codex/scripts/epic/new.sh` | Create a new epic from the template with sequential IDs and revision logging. |
+| `/epic:new` | `.codex/prompts/epic/new.md` | `.codex/scripts/epic/new.sh` | Scaffold a new epic YAML with sequential IDs and revision logging. |
 | `/epic:update` | `.codex/prompts/epic/update.md` | `.codex/scripts/epic/update.sh` | Edit existing epic metadata/overview fields. |
 | `/feature:new` | `.codex/prompts/feature/new.md` | `.codex/scripts/feature/new.sh` | Add a feature under an epic (auto IDs, timestamping). |
 | `/feature:update` | `.codex/prompts/feature/update.md` | `.codex/scripts/feature/update.sh` | Update feature overview metadata (description, user value, priority, facilitator). |
@@ -32,7 +32,7 @@ Every Codex prompt in `.codex/prompts/` has a matching shell script in `.codex/s
 
 - Richer sync options for `/ops:github-sync` (plan-level diffs, label management) and automation around multi-issue batching.
 
-See [docs/codex-migration.md](docs/codex-migration.md#upcoming-github-command-design) for ongoing roadmap notes.
+See [docs/archive/codex-migration.md](docs/archive/codex-migration.md#upcoming-github-command-design) for ongoing roadmap notes.
 
 ## Usage Notes
 

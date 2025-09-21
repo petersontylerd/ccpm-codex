@@ -7,12 +7,11 @@ Spec-driven product management for Codex CLI. This fork evolves the original Cla
 - Real timestamps follow Central Time (America/Chicago) via the shared helpers in `.codex/scripts/lib/`.
 - Test-driven development is enforced through rules, prompts, and the Codex test runner.
 
-![Codex PM flow](screenshot.webp)
 
 ## Quick Start
 
 ```bash
-# 1. Materialize the product plan from the template
+# 1. Verify the product plan is ready (fails if `.codex/product-plan/` is missing)
 /plan:init
 
 # 2. Get a summary of the current plan state
@@ -76,10 +75,9 @@ sed -n '1,5p' .codex/product-plan/offline-sync-queue.log
 │   ├── context/             # context:prime
 │   ├── ops/                 # ops:status (GitHub sync coming next)
 │   └── testing/             # testing:run (TDD helper suite)
-├── product-plan/            # Active plan state (generated via plan:init)
+├── product-plan/            # Active plan state committed to the repo (plan:init validates it)
 │   ├── foundation/          # PRD, personas, strategy, roadmap, etc.
 │   └── epics/               # Epics → features → user stories + updates/
-├── product-plan.template/   # Canonical template copied into product-plan/
 └── rules/                   # datetime.md, tdd.md, and future Codex rules
 ```
 
@@ -100,7 +98,7 @@ The plan is decomposed into three layers:
    - Story framing (`as_a`, `i_want`, `so_that`)
    - Acceptance criteria in Gherkin structure
 
-When you run `epic:new`, `feature:new`, or `story:new`, the commands copy the canonical template, stamp real timestamps, and log the change in `plan-meta.yaml` and `revisions.log`. Update commands (e.g., `story:update`) edit existing YAML fields and rewrite acceptance criteria blocks to eliminate the “placeholder” values delivered by the template.
+When you run `epic:new`, `feature:new`, or `story:new`, the commands scaffold fresh YAML in place, stamp real timestamps, and log the change in `plan-meta.yaml` and `revisions.log`. Update commands (e.g., `story:update`) edit existing YAML fields and rewrite acceptance criteria blocks to eliminate the placeholder values in the generated skeleton.
 
 Use `/plan:prd-update` to keep the foundation PRD aligned with the latest planning decisions—metadata, summary, and goal lists are all managed from that script with automatic revision logging.
 
@@ -165,7 +163,7 @@ Up next: richer sync options for `/ops/github-sync` (dry-run diffs across the wh
 | GitHub sync | `/pm:epic-sync`, `/pm:issue-start` coordination | `ops/github-sync` (preview/diff/select/report), `ops/github-pull`, and `ops/issue-*` lifecycle commands implemented |
 | Directory structure | Legacy Claude tree (removed) | `.codex/*` with 1:1 prompts/scripts |
 
-The legacy Claude assets are removed from this repository; the migration history lives in `docs/codex-migration.md`, and the removal steps are captured in `docs/claude-removal-checklist.md`.
+The legacy Claude assets are removed from this repository; the migration history lives in `docs/archive/codex-migration.md`, and the removal steps are captured in `docs/archive/claude-removal-checklist.md`.
 
 ## Requirements
 
@@ -183,17 +181,17 @@ If any dependency is missing, the scripts surface actionable guidance and exit n
 2. Follow the TDD loop; capture logs with `/testing:run` and store them under `tests/logs/`.
 3. Update the product plan via the provided `new`/`update` commands so data quality remains high.
 4. Run `/ops:status` and `/plan:status` before syncing with GitHub to identify missing fields.
-5. Document notable changes in `docs/codex-migration.md` as we phase out `.claude/`.
+5. Document notable changes in `docs/archive/codex-migration.md` as we phase out `.claude/`.
 
 ## Removing the Legacy Claude Tree
 
-We kept the original Claude assets checked in for historical reference until the migration checklist in `docs/claude-removal-checklist.md` was complete. With parity reached, follow this workflow whenever you prune a downstream fork:
+We kept the original Claude assets checked in for historical reference until the migration checklist in `docs/archive/claude-removal-checklist.md` was complete. With parity reached, follow this workflow whenever you prune a downstream fork:
 
 1. Confirm a search for `dot-claude` references only returns archival docs (no active prompts/scripts).
 2. Take note of outstanding Claude artifacts to archive elsewhere if desired.
 3. Delete the entire legacy Claude directory and update `.gitignore`, README, and any onboarding docs.
 4. Run the full test suite (`tests/unit/*.sh`, `tests/smoke/*.sh`) to validate the removal.
-5. Record the change in `docs/codex-migration.md` and reference it in the commit message.
+5. Record the change in `docs/archive/codex-migration.md` and reference it in the commit message.
 
 This section satisfies the checklist requirement so we have a single documented workflow when the final parity tasks are done.
 
