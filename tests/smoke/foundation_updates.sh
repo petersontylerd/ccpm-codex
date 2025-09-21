@@ -90,4 +90,46 @@ bash .codex/scripts/plan/roadmap-update.sh \
   --input "$ROADMAP_PAYLOAD" \
   --note "foundation smoke"
 
+printf 'Running epic:new...\n'
+EPIC_OUTPUT=$(bash .codex/scripts/epic/new.sh \
+  --name "Smoke Epic" \
+  --description "Smoke ensures epic creation works" \
+  --priority "Should" \
+  --facilitator "Smoke Facilitator")
+printf '%s\n' "$EPIC_OUTPUT"
+NEW_EPIC_ID=$(printf '%s\n' "$EPIC_OUTPUT" | awk '/Created epic/ {print $4; exit}')
+
+printf 'Running feature:new...\n'
+FEATURE_OUTPUT=$(bash .codex/scripts/feature/new.sh \
+  --epic "$NEW_EPIC_ID" \
+  --name "Smoke Feature" \
+  --description "Smoke ensures feature creation works" \
+  --user-value "Enable smoke coverage" \
+  --priority "Could" \
+  --facilitator "Smoke Facilitator")
+printf '%s\n' "$FEATURE_OUTPUT"
+NEW_FEATURE_ID=$(printf '%s\n' "$FEATURE_OUTPUT" | awk '/Created feature/ {print $4; exit}')
+
+printf 'Running story:new...\n'
+STORY_OUTPUT=$(bash .codex/scripts/story/new.sh \
+  --epic "$NEW_EPIC_ID" \
+  --feature "$NEW_FEATURE_ID" \
+  --name "Smoke Story" \
+  --as "Smoke user" \
+  --i-want "exercise story scaffolding" \
+  --so-that "new commands stay covered" \
+  --description "Smoke ensures story creation works" \
+  --priority "Could" \
+  --facilitator "Smoke Facilitator")
+printf '%s\n' "$STORY_OUTPUT"
+NEW_STORY_ID=$(printf '%s\n' "$STORY_OUTPUT" | awk '/Created user story/ {print $5; exit}')
+
+EPIC_FILE="$PLAN_DIR/epics/epic-$NEW_EPIC_ID/epic-$NEW_EPIC_ID.yaml"
+FEATURE_FILE="$PLAN_DIR/epics/epic-$NEW_EPIC_ID/features-$NEW_EPIC_ID/feature-$NEW_EPIC_ID-$NEW_FEATURE_ID/feature-$NEW_EPIC_ID-$NEW_FEATURE_ID.yaml"
+STORY_FILE="$PLAN_DIR/epics/epic-$NEW_EPIC_ID/features-$NEW_EPIC_ID/feature-$NEW_EPIC_ID-$NEW_FEATURE_ID/user-stories-$NEW_EPIC_ID-$NEW_FEATURE_ID/user-story-$NEW_EPIC_ID-$NEW_FEATURE_ID-$NEW_STORY_ID.yaml"
+
+grep -q "epic_id: \"$NEW_EPIC_ID\"" "$EPIC_FILE"
+grep -q "feature_id: \"$NEW_FEATURE_ID\"" "$FEATURE_FILE"
+grep -q "user_story_id: \"$NEW_STORY_ID\"" "$STORY_FILE"
+
 printf '\nFoundation updates smoke complete.\n'

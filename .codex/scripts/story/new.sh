@@ -9,9 +9,6 @@ else
 fi
 
 PLAN_DIR="$REPO_ROOT/.codex/product-plan"
-PLAN_TEMPLATE_DIR="$REPO_ROOT/.codex/product-plan.template"
-META_FILE="$PLAN_DIR/plan-meta.yaml"
-LOG_FILE="$PLAN_DIR/revisions.log"
 
 # shellcheck source=../lib/init.sh
 source "$SCRIPT_DIR/../lib/init.sh"
@@ -82,6 +79,10 @@ if [[ ! $FEATURE_ID =~ ^F[0-9]{3}$ ]]; then
   log_fatal "--feature must look like F###"
 fi
 
+if [ ! -d "$PLAN_DIR" ]; then
+  log_fatal "Product plan missing at $PLAN_DIR"
+fi
+
 FEATURE_DIR="$PLAN_DIR/epics/epic-$EPIC_ID/features-$EPIC_ID/feature-$EPIC_ID-$FEATURE_ID"
 USER_STORY_DIR="$FEATURE_DIR/user-stories-$EPIC_ID-$FEATURE_ID"
 if [ ! -d "$FEATURE_DIR" ]; then
@@ -89,11 +90,6 @@ if [ ! -d "$FEATURE_DIR" ]; then
 fi
 
 mkdir -p "$USER_STORY_DIR"
-
-template_story="$PLAN_TEMPLATE_DIR/epics/epic-E001/features-E001/feature-E001-F001/user-stories-E001-F001/user-story-E001-F001-US0001.yaml"
-if [ ! -f "$template_story" ]; then
-  log_fatal "User story template not found at $template_story"
-fi
 
 get_next_story_id() {
   local max=0
@@ -116,7 +112,70 @@ get_next_story_id() {
 STORY_ID=$(get_next_story_id)
 STORY_FILE="$USER_STORY_DIR/user-story-$EPIC_ID-$FEATURE_ID-$STORY_ID.yaml"
 
-cp "$template_story" "$STORY_FILE"
+cat <<'YAML' > "$STORY_FILE"
+# schema_version: 1.0.0
+metadata:
+  user_story_id: ""
+  parent_feature: ""
+  parent_epic: ""
+  user_story_name: ""
+  date: ""
+  facilitator: ""
+  based_on_artifacts:
+    - "brainstorm.yaml"
+    - "vision.yaml"
+    - "strategy.yaml"
+    - "roadmap.yaml"
+    - "development-considerations.yaml"
+    - "prd.yaml"
+    - "personas.yaml"
+    - "metrics.yaml"
+  schema_version: "1.0.0"
+
+story:
+  as_a: ""
+  i_want: ""
+  so_that: ""
+  description: ""
+
+acceptance_criteria:
+  - id: ""
+    given: ""
+    when: ""
+    then: ""
+  - id: ""
+    given: ""
+    when: ""
+    then: ""
+
+linked_artifacts:
+  personas: []
+  workflows: []
+  linked_prd_frs: []
+  linked_strategy_goals: []
+  linked_roadmap_horizons: []
+  linked_metrics: []
+
+dependencies:
+  other_user_stories: []
+
+risks_assumptions:
+  - id: ""
+    description: ""
+    type: ""
+    mitigation: ""
+    owner: ""
+
+prioritization:
+  priority: ""
+  rationale: ""
+
+github:
+  issue:
+  url: ""
+  last_synced: ""
+  last_status: ""
+YAML
 
 TIMESTAMP=$(get_chicago_timestamp)
 if [ -z "$TIMESTAMP" ]; then
@@ -141,7 +200,7 @@ def replace_field(text, key, value):
 def replace_story_section(text, key, value):
     if value == "":
         return text
-    pattern = re.compile(rf'(story:\n(?:.*\n)*?\s{{2}}{key}:\s*")[^"]*(".*)', re.MULTILINE)
+    pattern = re.compile(rf'(story:\n(?:.*\n)*?\s{2}{key}:\s*")[^"]*(".*)', re.MULTILINE)
     return pattern.sub(lambda m: f"{m.group(1)}{value}{m.group(2)}", text, count=1)
 
 text = replace_field(text, 'user_story_id', story_id)
@@ -159,32 +218,11 @@ text = replace_story_section(text, 'description', description)
 path.write_text(text)
 PY
 
-update_meta() {
-  local timestamp=$1
-  local command=$2
-  local initialized_at initialized_by revision_count
-  if [ -f "$META_FILE" ]; then
-    initialized_at=$(awk -F'"' '/initialized_at:/ {print $2; exit}' "$META_FILE")
-    initialized_by=$(awk -F'"' '/initialized_by:/ {print $2; exit}' "$META_FILE")
-    revision_count=$(awk -F':' '/revision_count:/ {gsub(/ /,"",$2); print $2; exit}' "$META_FILE")
-  fi
-  initialized_at=${initialized_at:-$timestamp}
-  initialized_by=${initialized_by:-plan:init}
-  revision_count=${revision_count:-0}
-  revision_count=$((revision_count + 1))
-  cat > "$META_FILE" <<EOF_META
-initialized_at: "$initialized_at"
-initialized_by: "$initialized_by"
-last_updated: "$timestamp"
-last_command: "$command"
-revision_count: $revision_count
-EOF_META
-}
-
-update_meta "$TIMESTAMP" "story:new"
-printf '%s | story:new | Created story %s under %s/%s (%s)\n' "$TIMESTAMP" "$STORY_ID" "$EPIC_ID" "$FEATURE_ID" "$NAME" >> "$LOG_FILE"
+SUMMARY="Created story $STORY_ID under $EPIC_ID/$FEATURE_ID ($NAME)"
+REV_TS=$(plan_record_revision "story:new" "$SUMMARY")
 
 log_info "Created user story $STORY_ID under feature $FEATURE_ID (epic $EPIC_ID)"
 log_info "Location: $STORY_FILE"
+log_info "Revision recorded at $REV_TS"
 
 exit 0
