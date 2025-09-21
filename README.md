@@ -7,6 +7,37 @@ Spec-driven product management for Codex CLI. This fork evolves the original Cla
 - Real timestamps follow Central Time (America/Chicago) via the shared helpers in `.codex/scripts/lib/`.
 - Test-driven development is enforced through rules, prompts, and the Codex test runner.
 
+## Get Started Now
+
+### Quick Setup (2 minutes)
+
+1. **Install this toolkit into your project**
+
+   ```bash
+   cd path/to/your/project/
+   curl -sSL https://raw.githubusercontent.com/automazeio/ccpm-codex/main/install/codex.sh | bash
+   # pass --include-docs and/or --include-tests if you want local copies of docs/ and tests/
+   ```
+
+   > ⚠️ **Important:** If you already track a `.codex` directory, install this fork in a temporary location and manually merge changes (or rerun with `--force` after taking a backup). Windows users can run the installer from WSL.
+
+2. **Initialize the Codex PM system**
+
+   ```bash
+   /plan:init
+   /context:prime
+   ```
+
+   These commands verify the product-plan footprint, scaffold any missing directories, and cache a current-state brief for Codex sessions.
+
+3. **Expose the prompts to Codex CLI**
+
+   ```bash
+   /ops:prompts-sync
+   ```
+
+   The helper copies every `ccpm-*` prompt into `~/.codex/prompts/` so local Codex sessions can execute the commands above.
+
 
 ## Quick Start
 

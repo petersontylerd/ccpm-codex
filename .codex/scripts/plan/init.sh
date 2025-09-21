@@ -28,4 +28,12 @@ TIMESTAMP=$(plan_record_revision "plan:init" "$SUMMARY")
 log_info "Product plan ready at $PLAN_DIR"
 log_info "Revision recorded at $TIMESTAMP"
 
+PROMPT_SYNC_SCRIPT="$REPO_ROOT/.codex/scripts/ops/prompts-sync.sh"
+if [ -x "$PROMPT_SYNC_SCRIPT" ]; then
+  log_info "Syncing Codex prompts into ~/.codex/prompts"
+  "$PROMPT_SYNC_SCRIPT"
+else
+  log_warn "Prompt sync helper missing at $PROMPT_SYNC_SCRIPT; skipping Codex prompt sync."
+fi
+
 exit 0

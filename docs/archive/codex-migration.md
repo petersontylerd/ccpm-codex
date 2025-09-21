@@ -16,7 +16,8 @@ This document tracks the transition from the Claude Code PM workflow to the Code
 ## Target Architecture (Codex)
 
 - **Prompts & scripts:**
-  - Each Codex command lives as `.codex/prompts/<group>/<command>.md` paired 1:1 with an executable `.codex/scripts/<group>/<command>.sh` (e.g., `plan/prd-update.md` ↔ `plan/prd-update.sh`).
+  - Each Codex command lives as `.codex/prompts/ccpm-<verb>-<noun>.md` paired 1:1 with an executable `.codex/scripts/<group>/<command>.sh` (e.g., `ccpm-update-prd.md` ↔ `plan/prd-update.sh`).
+  - `.codex/scripts/ops/prompts-sync.sh` copies those prompts into `~/.codex/prompts/` so Codex CLI sessions pick them up; onboarding flows (e.g., `plan:init`) should run it automatically.
   - Prompts call their script counterparts using the exact CLI invocation users would run manually, passing through arguments verbatim.
 - **Product plan operations:**
   - Core commands focus on updating/extending the structured artifacts committed in `.codex/product-plan/`, rather than regenerating PRDs/epics/features from scratch in markdown.

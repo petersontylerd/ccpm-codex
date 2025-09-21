@@ -1,38 +1,34 @@
-# Codex Agent & Command Patterns
+# Repository Guidelines
 
-This repository now orients all guided workflows around Codex CLI prompts and shell scripts that live under `.codex/`. Legacy Claude assets have been removed after migration; the history is documented in `docs/archive/codex-migration.md`.
+## Project Structure & Module Organization
+- `.codex/prompts/` mirrors `.codex/scripts/` using hyphenated filenames (e.g., `ccpm-init-plan.md` ↔ `plan/init.sh`); each script sources `.codex/scripts/lib/init.sh` for logging, timestamps, and GitHub checks.
+- `.codex/scripts/ops/prompts-sync.sh` copies the repo prompts into `~/.codex/prompts/ccpm-*` so the Codex CLI can see them; run it after changing prompts (or rerun `/plan:init`).
+- `.codex/product-plan/` stores the YAML hierarchy (`epic-E###/feature-E###-F###/user-story-E###-F###-US####.yaml`) plus `foundation/` PRD assets.
+- `.codex/rules/` enforces Central Time logging and TDD expectations; `docs/` captures migration notes and process history.
+- `tests/` splits into `unit/` (bash wrappers around Python helpers) and `smoke/` end-to-end suites; command output lands in `tests/logs/`.
 
-## Where Things Live
+## Build, Test, and Development Commands
+- `/plan:init` validates the product-plan footprint and halts when required files are missing.
+- `/context:prime` summarizes product metadata before you begin coding.
+- `/testing:red -- pytest tests/unit --maxfail=1`, `/testing:run -- pytest tests/unit --maxfail=1`, and `/testing:refactor` keep the red → green → refactor journal current.
+- `bash tests/smoke/github_workflow.sh` exercises GitHub-sync paths offline; `bash tests/smoke/tdd_helpers.sh` sanity-checks the testing prompts.
 
-- `.codex/prompts/` – Codex-facing prompts. Each prompt mirrors a shell script with the same path/name.
-- `.codex/scripts/` – Executable helpers the prompts invoke. Shared utilities live in `.codex/scripts/lib/`.
-- `.codex/rules/` – Global rules applied to Codex sessions (Central Time timestamps, TDD expectations, etc.).
-- `.codex/product-plan/` – Source of truth for the PRD, epics, features, and user stories.
-- `tests/logs/` – Output from `/testing:*` commands, plus the TDD journal (`tdd-history.log`).
+## Coding Style & Naming Conventions
+- Bash scripts start with `#!/bin/bash` and `set -euo pipefail`, use two-space indentation, and prefer lowercase `snake_case` helpers; keep comments focused on intent.
+- YAML stays two-space indented with stable keys; directory prefixes (`epic-`, `feature-`, `user-story-`) must remain for automation to resolve artifacts.
+- Prompt and script filenames stay paired (`.codex/prompts/ccpm-verb-noun.md` ↔ `.codex/scripts/group/command.sh`) so CLI and agent workflows mirror each other.
 
-Legacy Claude assets have been removed; refer to `docs/archive/claude-removal-checklist.md` for the process we followed.
+## Testing Guidelines
+- Unit runners (e.g., `tests/unit/foundation_test.sh`) require `python3` plus `PyYAML`; install via `pip install pyyaml` when needed.
+- Run smoke suites after touching plan sync or TDD helpers and archive their output under `tests/logs/`.
+- Document every red/green/refactor cycle with the `/testing:*` prompts so `tests/logs/tdd-history.log` remains authoritative.
 
-## Recommended Agent Invocations
+## Commit & Pull Request Guidelines
+- Follow the existing short, sentence-case subject style (`Overhaul with Codex CLI`); add scoped prefixes only when they clarify impact.
+- Reference related issue IDs, list the `/testing:*` flows executed, and attach relevant log snippets or screenshots for behavioral changes.
+- PRs should summarize impact on the product plan or CLI surface area and confirm updates were applied via the correct `.codex` prompts.
 
-| Goal | Prompt / Script | What It Does |
-| --- | --- | --- |
-| Prime context | `/context:prime` → `.codex/scripts/context/prime.sh` | Summarises PRD metadata, recent revisions, and epic/feature snapshots so Codex starts grounded. |
-| Inspect plan | `/plan:status` → `.codex/scripts/plan/status.sh` | Counts epics/features/stories and reports latest revision info. |
-| Update PRD | `/plan:prd-update` → `.codex/scripts/plan/prd-update.sh` | Edits PRD metadata, summary, and goal lists with full revision logging. |
-| Maintain personas | `/plan:personas-update` → `.codex/scripts/plan/personas-update.sh` | Merges persona/buyer/influencer records by id/role and removes placeholders. |
-| Maintain strategy | `/plan:strategy-update` → `.codex/scripts/plan/strategy-update.sh` | Updates strategic goals/choices/themes and commercialization notes. |
-| Grow hierarchy | `/epic:new`, `/feature:new`, `/story:new` | Scaffolds new YAML, stamps Central Time, and logs changes. |
-| Edit hierarchy | `/epic:update`, `/feature:update`, `/story:update` | In-place YAML edits that keep revision history aligned. |
-| Enforce TDD | `/testing:red`, `/testing:run`, `/testing:refactor` | Confirm red/green cycles, capture execution windows, and append entries to the TDD journal. |
-| GitHub sync | `/ops:github-sync` | Preview/apply hierarchy updates; outputs diff + plan summaries and records results in the plan. |
-| GitHub pull | `/ops:github-pull` | Refresh local metadata with remote issue state while obeying Central Time logging. |
-| Offline queue | `/ops:offline-queue` | Inspect/export queued creations, replay them once connectivity returns, or clear the queue. |
-
-## Working With Agents
-
-1. **Keep heavy work in sub-agents.** Invocations like `/testing:red` or `/ops:github-sync --diff` keep verbose output out of the main conversation.
-2. **Respect the rules.** Source `.codex/scripts/lib/init.sh` in bespoke helpers so you inherit logging, timestamp, and GitHub checks.
-3. **Close the loop.** After significant changes, update the product plan (PRD, personas, strategy, epics, features, stories) so downstream agents read canonical data. See `docs/foundation-updates.md` for payload patterns.
-4. **Journal the cycle.** Use the TDD helpers to document red → green → refactor impact in `tests/logs/tdd-history.log`.
-
-When in doubt, run `docs/archive/codex-migration.md` for the latest status and roadmap updates.
+## Agent-Specific Practices
+- Source `.codex/scripts/lib/init.sh` in new helpers to inherit logging, Central Time stamping, and GitHub guards.
+- Prefer sub-agent prompts for verbose operations and close the loop by updating the product plan so downstream sessions stay in sync.
+- Lean on MCP servers when it sharpens the workflow: use `sequential-thinking` for complex planning, `context7` to fetch external docs, and `memory` to persist observations other agents should reuse.
